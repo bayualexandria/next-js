@@ -22,37 +22,43 @@ const getUserById = async (req, res) => {
 const createUser = async (req, res) => {
   let { username, password, status_id, is_active } = req.body;
   if (username === undefined || username.length === 0)
-    res.status(400).json({
+    return res.status(400).json({
       data: { username: username },
       message: 'Username tidak boleh kosong',
+      status:400
     });
 
   if (password === undefined || password.length === 0)
-    res.status(400).json({
+    return res.status(400).json({
       data: { password },
       message: 'Password tidak boleh kosong',
+      status:400
     });
 
   if (status_id === undefined || status_id.length === 0)
-    res.status(400).json({
+    return res.status(400).json({
       data: { status_id },
       message: 'Status tidak boleh kosong',
+      status:400
     });
   if (!Number(status_id))
-    res.status(400).json({
+    return res.status(400).json({
       data: { status_id },
       message: 'Status harus berupa angka',
+      status:400
     });
 
   if (is_active === undefined || is_active === 0)
-    res.status(400).json({
+    return res.status(400).json({
       data: { is_active },
       message: 'is_active tidak boleh kosong',
+      status:400
     });
   if (!Number(is_active))
-    res.status(400).json({
+    return res.status(400).json({
       data: { is_active },
       message: 'is_active harus berupa angka',
+      status:400
     });
 
   const date = new Date();
@@ -93,37 +99,43 @@ const updateUser = async (req, res) => {
   let id = req.query.id;
   let { username, password, status_id, is_active } = req.body;
   if (username === undefined || username.length === 0)
-    res.status(400).json({
+    return res.status(400).json({
       data: { username: username },
       message: 'Username tidak boleh kosong',
+      status:400
     });
 
   if (password === undefined || password.length === 0)
-    res.status(400).json({
+    return res.status(400).json({
       data: { password },
       message: 'Password tidak boleh kosong',
+      status:400
     });
 
   if (status_id === undefined || status_id.length === 0)
-    res.status(400).json({
+    return res.status(400).json({
       data: { status_id },
       message: 'Status tidak boleh kosong',
+      status:400
     });
   if (!Number(status_id))
-    res.status(400).json({
+    return res.status(400).json({
       data: { status_id },
       message: 'Status harus berupa angka',
+      status:400
     });
 
   if (is_active === undefined || is_active === 0)
-    res.status(400).json({
+    return res.status(400).json({
       data: { is_active },
       message: 'is_active tidak boleh kosong',
+      status:400
     });
   if (!Number(is_active))
-    res.status(400).json({
+    return res.status(400).json({
       data: { is_active },
       message: 'is_active harus berupa angka',
+      status:400
     });
 
   const date = new Date();

@@ -75,14 +75,22 @@ export default function Home() {
     setButton(icon);
     console.log(result);
     try {
+      let response = await fetch('http://localhost:3000/api/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(result),
+      }).then((result) => result.json());
+      // if ( response.status === 400 ) {
+      //   setMessage(messageSuccess);
+      //   setButton(false);
+      // }
+
+      console.log(response.message);
+        
+      
       setTimeout(async () => {
-        let response = await fetch('http://localhost:3000/api/user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(result),
-        }).then((result) => result.json());
         console.log(response);
         setButton(false);
         setMessage(messageSuccess);
