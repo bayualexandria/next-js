@@ -93,7 +93,9 @@ const createUser = async (req, res) => {
 
     if (data.errno === 1062)
       return res.status(400).json({
-        message: 'Username sudah ada',
+        username:{
+          message: 'Username sudah ada'
+        },
         status: 400,
       });
 
