@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CheckCircleIcon,
   EyeIcon,
@@ -46,29 +46,14 @@ export default function Home() {
   // Get data user
   const getData = async () => {
     try {
-      const hasil = await fetch('http://localhost:3000/api/user').then(
-        (res) => res.json()
-      ).then((data)=>data);
+      const hasil = await fetch('http://localhost:3000/api/user')
+        .then((res) => res.json())
+        .then((data) => data);
       console.log(hasil[0]);
       setData(hasil);
     } catch (e) {
       setData('Data tidak bisa dimuat kesalahan URL');
     }
-  };
-
-  // Process Loading Data
-  const clickButton = () => {
-    const icon = (
-      <>
-        <RefreshIcon className="w-10 h-10 animate-spin text-cyan-500 " />
-      </>
-    );
-    setLoading(icon);
-    setTimeout(() => {
-      getData();
-
-      setLoading('');
-    }, 5000);
   };
 
   // Insert Data User
@@ -105,6 +90,10 @@ export default function Home() {
     setMessageSuccess('');
     setMessageError('');
   };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <div
@@ -205,20 +194,35 @@ export default function Home() {
         </button>
       </div>
       {messageSuccess}
-      <button
-        onClick={clickButton}
-        className="px-4 py-2 text-base font-bold text-white transition duration-200 rounded-full shadow-md bg-lime-500 ring ring-lime-200 hover:ring hover:ring-lime-500 hover:bg-white hover:text-lime-500"
-      >
-        Get Data
-      </button>
-      <div>{loading}</div>
-      {data.map((d) => {
-        return (
-          <a key={d.id} href="">
-            {d.username}
-          </a>
-        );
-      })}
+      <table className="table-fixed">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((d) => {
+            return (
+              <tr key={d.id} href="">
+                <td>{}</td>
+                <td>{d.username}</td>
+                <td>
+                  {d.status_id === 1
+                    ? 'Admin'
+                    : d.status_id === 2
+                    ? 'Guru'
+                    : 'Siswa'}
+                </td>
+                <td>{d.created_at}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
