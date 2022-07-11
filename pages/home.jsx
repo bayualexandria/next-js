@@ -194,35 +194,41 @@ export default function Home() {
         </button>
       </div>
       {messageSuccess}
-      <table className="table-fixed">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Username</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((d) => {
-            return (
-              <tr key={d.id} href="">
-                <td>{}</td>
-                <td>{d.username}</td>
-                <td>
-                  {d.status_id === 1
-                    ? 'Admin'
-                    : d.status_id === 2
-                    ? 'Guru'
-                    : 'Siswa'}
-                </td>
-                <td>{d.created_at}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="border rounded-md border-6 border-slate-500">
+        <table className="table-fixed">
+          <thead className="border-b border-6 border-slate-500">
+            <tr>
+              <th className="px-4 py-2">#</th>
+              <th className="px-4 py-2">Username</th>
+              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2">Created</th>
+              <th className="px-4 py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {data.map((d) => {
+              return (
+                <tr key={d.id} href="">
+                  <td className="px-4 py-2">{}</td>
+                  <td className="px-4 py-2">{d.username}</td>
+                  <td className="px-4 py-2">
+                    {d.status_id === 1
+                      ? 'Admin'
+                      : d.status_id === 2
+                      ? 'Guru'
+                      : 'Siswa'}
+                  </td>
+                  <td className="px-4 py-2">{d.created_at}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate,
+        recusandae?
+      </p>
     </div>
   );
 }
