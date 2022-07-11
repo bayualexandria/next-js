@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   CheckCircleIcon,
-  CheckIcon,
   EyeIcon,
   EyeOffIcon,
   RefreshIcon,
@@ -17,7 +16,8 @@ export default function Home() {
   const [isActive, setIsActive] = useState('');
   const [button, setButton] = useState(false);
   const [invisible, setInvisible] = useState(false);
-  const [message, setMessage] = useState('');
+  const [messageSuccess, setMessageSuccess] = useState('');
+  const [messageError, setMessageError] = useState('');
 
   const result = {
     username,
@@ -32,7 +32,7 @@ export default function Home() {
     </>
   );
 
-  const messageSuccess = (
+  const showMessageSuccess = (
     <div className="absolute flex items-center justify-center w-full px-5">
       <div className="flex flex-col items-center justify-center w-full p-10 bg-white rounded-md shadow-md md:w-1/3 gap-y-5 sm:w-1/2 lg:w-1/4">
         <CheckCircleIcon className="w-14 h-14 text-lime-500 animate-bounce" />
@@ -46,9 +46,10 @@ export default function Home() {
   // Get data user
   const getData = async () => {
     try {
-      const hasil = await fetch('http://localhost:3000/api/user/1').then(
+      const hasil = await fetch('http://localhost:3000/api/user').then(
         (res) => res.json()
-      );
+      ).then((data)=>data);
+      console.log(hasil[0]);
       setData(hasil);
     } catch (e) {
       setData('Data tidak bisa dimuat kesalahan URL');
@@ -72,8 +73,6 @@ export default function Home() {
 
   // Insert Data User
   const insertData = async () => {
-    setButton(icon);
-    console.log(result);
     try {
       let response = await fetch('http://localhost:3000/api/user', {
         method: 'POST',
@@ -82,18 +81,14 @@ export default function Home() {
         },
         body: JSON.stringify(result),
       }).then((result) => result.json());
-      // if ( response.status === 400 ) {
-      //   setMessage(messageSuccess);
-      //   setButton(false);
-      // }
+      if (response.status === 400) {
+        return setMessageError(response);
+      }
+      setButton(icon);
 
-      console.log(response.message);
-        
-      
       setTimeout(async () => {
-        console.log(response);
         setButton(false);
-        setMessage(messageSuccess);
+        setMessageSuccess(showMessageSuccess);
         return response;
       }, 5000);
     } catch (error) {
@@ -106,12 +101,16 @@ export default function Home() {
     setInvisible(!invisible);
   };
 
-  const hideModal = ()=>{
-    setMessage('');
-  }
+  const hideModal = () => {
+    setMessageSuccess('');
+    setMessageError('');
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-y-5" onClick={hideModal}>
+    <div
+      className="flex flex-col items-center justify-center h-screen gap-y-5"
+      onClick={hideModal}
+    >
       <div className="flex flex-col justify-center h-screen gap-y-4">
         <div className="flex flex-col gap-y-2">
           <label
@@ -127,6 +126,9 @@ export default function Home() {
             className="px-3 py-1.5 border rounded-md shadow-md outline-none border-cyan-500 text-slate-500"
             onChange={(e) => setUsername(e.target.value)}
           />
+          <p className="text-sm font-thin text-red-500">
+            {messageError.username ? messageError.username.message : ''}
+          </p>
         </div>
 
         <div className="flex flex-col gap-y-2">
@@ -145,7 +147,7 @@ export default function Home() {
               onChange={(e) => setPassword(e.target.value)}
             />
             <div className="absolute right-3 top-2">
-              <button onClick={btnPassword} className='outline-none'>
+              <button onClick={btnPassword} className="outline-none">
                 {invisible ? (
                   <EyeOffIcon className="w-5 h-5 text-cyan-500" />
                 ) : (
@@ -154,6 +156,9 @@ export default function Home() {
               </button>
             </div>
           </div>
+          <p className="text-sm font-thin text-red-500">
+            {messageError.password ? messageError.password.message : ''}
+          </p>
         </div>
         <div className="flex flex-col gap-y-2">
           <label
@@ -169,6 +174,9 @@ export default function Home() {
             className="px-3 py-1.5 border rounded-md shadow-md outline-none border-cyan-500 text-slate-500"
             onChange={(e) => setStatusId(e.target.value)}
           />
+          <p className="text-sm font-thin text-red-500">
+            {messageError.status_id ? messageError.status_id.message : ''}
+          </p>
         </div>
         <div className="flex flex-col gap-y-2">
           <label
@@ -184,6 +192,9 @@ export default function Home() {
             className="px-3 py-1.5 border rounded-md shadow-md outline-none border-cyan-500 text-slate-500"
             onChange={(e) => setIsActive(e.target.value)}
           />
+          <p className="text-sm font-thin text-red-500">
+            {messageError.is_active ? messageError.is_active.message : ''}
+          </p>
         </div>
         <button
           onClick={insertData}
@@ -193,7 +204,7 @@ export default function Home() {
           {button ? button : 'Simpan'}
         </button>
       </div>
-      {message}
+      {messageSuccess}
       <button
         onClick={clickButton}
         className="px-4 py-2 text-base font-bold text-white transition duration-200 rounded-full shadow-md bg-lime-500 ring ring-lime-200 hover:ring hover:ring-lime-500 hover:bg-white hover:text-lime-500"

@@ -1,10 +1,15 @@
+import Joi from 'joi';
 import { query } from '../config/db';
 const bcrypt = require('bcryptjs');
 
 const getAllUser = async (req, res) => {
   try {
     const queryData = 'SELECT * FROM users';
-    const data = await query({ query: queryData });
+    const data = await query({ query: queryData, values: [] });
+    let result = fetch('http://localhost:3000/api/user')
+      .then((res) => res.json())
+      .then(data);
+    console.log(result);
     res.status(200).json(data);
   } catch (e) {}
 };
@@ -21,50 +26,58 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   let { username, password, status_id, is_active } = req.body;
+
   if (username === undefined || username.length === 0)
     return res.status(400).json({
-      data: { username: username },
-      message: 'Username tidak boleh kosong',
-      status:400
+      username: {
+        message: 'Username tidak boleh kosong',
+      },
+      status: 400,
     });
 
   if (password === undefined || password.length === 0)
     return res.status(400).json({
-      data: { password },
-      message: 'Password tidak boleh kosong',
-      status:400
+      password: {
+        message: 'Password tidak boleh kosong',
+      },
+      status: 400,
     });
 
   if (status_id === undefined || status_id.length === 0)
     return res.status(400).json({
-      data: { status_id },
-      message: 'Status tidak boleh kosong',
-      status:400
+      status_id: {
+        message: 'Status tidak boleh kosong',
+      },
+      status: 400,
     });
   if (!Number(status_id))
     return res.status(400).json({
-      data: { status_id },
-      message: 'Status harus berupa angka',
-      status:400
+      status_id: {
+        message: 'Status harus berupa angka',
+      },
+      status: 400,
     });
 
-  if (is_active === undefined || is_active === 0)
+  if (is_active === undefined || is_active.length === 0)
     return res.status(400).json({
-      data: { is_active },
-      message: 'is_active tidak boleh kosong',
-      status:400
+      is_active: {
+        message: 'is_active tidak boleh kosong',
+      },
+      status: 400,
     });
   if (!Number(is_active))
     return res.status(400).json({
-      data: { is_active },
-      message: 'is_active harus berupa angka',
-      status:400
+      is_active: {
+        message: 'is_active harus berupa angka',
+      },
+      status: 400,
     });
 
   const date = new Date();
   const createdAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
   const updatedAt = createdAt;
   const encryptPassword = await bcrypt.hash(password, 10);
+
   const values = [
     username,
     encryptPassword,
@@ -78,7 +91,13 @@ const createUser = async (req, res) => {
       'INSERT INTO users (username,password,status_id,is_active,created_at,updated_at) VALUES (?,?,?,?,?,?)';
     const data = await query({ query: queryData, values: values });
 
-    res.json({
+    if (data.errno === 1062)
+      return res.status(400).json({
+        message: 'Username sudah ada',
+        status: 400,
+      });
+
+    return res.json({
       data: {
         username,
         password: encryptPassword,
@@ -91,62 +110,68 @@ const createUser = async (req, res) => {
       status: 200,
     });
   } catch (e) {
-    res.status(400).json({ message: 'Gagal membuat user' });
+    res.status(400).json(e);
   }
 };
 
 const updateUser = async (req, res) => {
   let id = req.query.id;
   let { username, password, status_id, is_active } = req.body;
+
+  const userId = await query({
+    query: 'SELECT id FROM users WHERE id=?',
+    values: [id],
+  });
+
   if (username === undefined || username.length === 0)
     return res.status(400).json({
-      data: { username: username },
-      message: 'Username tidak boleh kosong',
-      status:400
+      username: {
+        message: 'Username tidak boleh kosong',
+      },
+      status: 400,
     });
-
   if (password === undefined || password.length === 0)
     return res.status(400).json({
-      data: { password },
-      message: 'Password tidak boleh kosong',
-      status:400
+      password: {
+        message: 'Password tidak boleh kosong',
+      },
+      status: 400,
     });
 
   if (status_id === undefined || status_id.length === 0)
     return res.status(400).json({
-      data: { status_id },
-      message: 'Status tidak boleh kosong',
-      status:400
+      status_id: {
+        message: 'Status tidak boleh kosong',
+      },
+      status: 400,
     });
   if (!Number(status_id))
     return res.status(400).json({
-      data: { status_id },
-      message: 'Status harus berupa angka',
-      status:400
+      status_id: {
+        message: 'Status harus berupa angka',
+      },
+      status: 400,
     });
 
-  if (is_active === undefined || is_active === 0)
+  if (is_active === undefined || is_active.length === 0)
     return res.status(400).json({
-      data: { is_active },
-      message: 'is_active tidak boleh kosong',
-      status:400
+      is_active: {
+        message: 'is_active tidak boleh kosong',
+      },
+      status: 400,
     });
   if (!Number(is_active))
     return res.status(400).json({
-      data: { is_active },
-      message: 'is_active harus berupa angka',
-      status:400
+      is_active: {
+        message: 'is_active harus berupa angka',
+      },
+      status: 400,
     });
 
   const date = new Date();
   const updatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
   const encryptPassword = await bcrypt.hash(password, 10);
   const values = [username, encryptPassword, status_id, is_active, updatedAt];
-
-  const userId = await query({
-    query: 'SELECT id FROM users WHERE id=?',
-    values: [id],
-  });
 
   try {
     const queryData = `UPDATE users SET username=?,password=?,status_id=?,is_active=?,updated_at=? WHERE id=${id}`;

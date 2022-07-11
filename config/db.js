@@ -10,7 +10,7 @@ export async function query ({query, values}) {
         socketPath:'/var/run/mysqld/mysqld.sock'
     });
   try {
-    const [result] = await connection.execute(query, values);
+    let [result] = await connection.execute(query, values);
     connection.end();
     return result;
   } catch (error) {
