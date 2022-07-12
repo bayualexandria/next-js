@@ -1,4 +1,3 @@
-import Joi from 'joi';
 import { query } from '../config/db';
 const bcrypt = require('bcryptjs');
 
