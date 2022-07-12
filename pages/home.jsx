@@ -9,7 +9,6 @@ const bcrypt = require('bcryptjs');
 
 export default function Home() {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [statusId, setStatusId] = useState('');
@@ -49,7 +48,6 @@ export default function Home() {
       const hasil = await fetch('http://localhost:3000/api/user')
         .then((res) => res.json())
         .then((data) => data);
-      console.log(hasil[0]);
       setData(hasil);
     } catch (e) {
       setData('Data tidak bisa dimuat kesalahan URL');
@@ -225,10 +223,6 @@ export default function Home() {
           </tbody>
         </table>
       </div>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate,
-        recusandae?
-      </p>
     </div>
   );
 }
