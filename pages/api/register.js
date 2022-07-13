@@ -1,5 +1,5 @@
 import db from '../../config/db';
-
+import bcrypt from 'bcryptjs';
 export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).end('Request method harus POST').end();
@@ -48,10 +48,11 @@ export default async function handler(req, res) {
 
   const created_at = new Date();
   const updated_at = created_at;
+  const password_hash = await bcrypt.hash(password, 10);
   try {
     const user = await db('users').insert({
       username,
-      password,
+      password:password_hash,
       status_id,
       is_active,
       created_at,
