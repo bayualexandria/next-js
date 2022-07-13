@@ -4,6 +4,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   RefreshIcon,
+  TrashIcon,
 } from '@heroicons/react/solid';
 const bcrypt = require('bcryptjs');
 
@@ -45,10 +46,11 @@ export default function Home() {
   // Get data user
   const getData = async () => {
     try {
-      const hasil = await fetch('http://localhost:3000/api/user')
-        .then((res) => res.json())
-        .then((data) => data);
-      setData(hasil);
+      const hasil = await fetch('http://localhost:3000/api/user').then((res) =>
+        res.json()
+      );
+      console.log(hasil.data);
+      setData(hasil.data);
     } catch (e) {
       setData('Data tidak bisa dimuat kesalahan URL');
     }
@@ -64,6 +66,7 @@ export default function Home() {
         },
         body: JSON.stringify(result),
       }).then((result) => result.json());
+      console.log(response);
       if (response.status === 400) {
         return setMessageError(response);
       }
@@ -79,6 +82,27 @@ export default function Home() {
     }
   };
 
+  const deleteData = async (id) => {
+    console.log(id);
+    try {
+      let response = await fetch(`http://localhost:3000/api/user/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then((result) => result.json());
+      console.log(response);
+      if (response.status === 400) {
+        return setMessageError(response);
+      }
+
+      setTimeout(async () => {
+        setMessageSuccess(showMessageSuccess);
+        return response;
+      }, 5000);
+    } catch (error) {}
+  };
+
   // Show and Hide Password
   const btnPassword = () => {
     setInvisible(!invisible);
@@ -90,12 +114,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    getData();
+    return () => {
+      getData();
+    };
   }, []);
 
   return (
     <div
-      className="flex flex-col items-center justify-center h-screen gap-y-5"
+      className="flex flex-col items-center justify-center gap-y-5"
       onClick={hideModal}
     >
       <div className="flex flex-col justify-center h-screen gap-y-4">
@@ -192,7 +218,7 @@ export default function Home() {
         </button>
       </div>
       {messageSuccess}
-      <div className="border rounded-md border-6 border-slate-500">
+      <div className="h-full border rounded-md border-6 border-slate-500">
         <table className="table-fixed">
           <thead className="border-b border-6 border-slate-500">
             <tr>
@@ -206,7 +232,7 @@ export default function Home() {
           <tbody className="divide-y">
             {data.map((d) => {
               return (
-                <tr key={d.id} href="">
+                <tr key={d.id}>
                   <td className="px-4 py-2">{}</td>
                   <td className="px-4 py-2">{d.username}</td>
                   <td className="px-4 py-2">
@@ -217,6 +243,15 @@ export default function Home() {
                       : 'Siswa'}
                   </td>
                   <td className="px-4 py-2">{d.created_at}</td>
+                  <td>
+                    <button
+                      onClick={() => deleteData(d.id)}
+                      id={d.id}
+                      type="button"
+                    >
+                      <TrashIcon className="w-5 h-5 text-red-500" />
+                    </button>
+                  </td>
                 </tr>
               );
             })}

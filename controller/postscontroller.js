@@ -1,4 +1,4 @@
-import config from '../config/config';
+import db from '../config/db';
 
 const insertPost = async (req, res) => {
   if (req.method !== 'POST')
@@ -22,11 +22,11 @@ const insertPost = async (req, res) => {
     });
 
   try {
-    const data = await config('posts').insert({
+    const data = await db('posts').insert({
       title,
       content,
     });
-    const createData = await config('posts').where('id', data).first();
+    const createData = await db('posts').where('id', data).first();
     res.status(200);
     res.json({
       data: createData,
@@ -41,7 +41,7 @@ const getPost = async (req, res) => {
   if (req.method !== 'GET')
     return res.status(405).json({ message: 'Request method harus GET' }).end();
 
-  const getData = await config('posts');
+  const getData = await db('posts');
 
   res.status(200).json({
     data: getData,
@@ -53,7 +53,7 @@ const getPostById = async (req, res) => {
   if (req.method !== 'GET')
     return res.status(405).json({ message: 'Request method harus GET' }).end();
   const { id } = req.query;
-  const dataById = await config('posts').where('id', id).first();
+  const dataById = await db('posts').where('id', id).first();
 
   if (!dataById)
     return res.status(400).json({
@@ -78,7 +78,7 @@ const updatePost = async (req, res) => {
   const { id } = req.query;
   const { title, content } = req.body;
   const { updated_at } = new Date();
-  const dataById = await config('posts').where('id', id).first();
+  const dataById = await db('posts').where('id', id).first();
   if (!dataById)
     return res.status(400).json({
       title: {
@@ -103,12 +103,12 @@ const updatePost = async (req, res) => {
     });
 
   try {
-    const data = await config('posts').where('id', id).update({
+    const data = await db('posts').where('id', id).update({
       title,
       content,
       updated_at,
     });
-    const updateData = await config('posts').where('id', data).first();
+    const updateData = await db('posts').where('id', data).first();
 
     res.status(200);
     res.json({
@@ -127,14 +127,14 @@ const deletePost = async (req, res) => {
       .json({ message: 'Request method harus DELETE' })
       .end();
   const { id } = req.query;
-  const dataById = await config('posts').where('id', id).first();
+  const dataById = await db('posts').where('id', id).first();
   if (!dataById)
     return res.status(400).json({
       id: id,
       message: 'Id tidak ditemukan',
     });
   try {
-    const data = await config('posts').where('id', id).del();
+    const data = await db('posts').where('id', id).del();
     res.status(200);
     res.json({
       data: data,

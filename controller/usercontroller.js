@@ -1,30 +1,26 @@
-import { query } from '../config/db';
-const bcrypt = require('bcryptjs');
+import db from '../config/db';
+var bcrypt = require('bcryptjs');
 
-const getAllUser = async (req, res) => {
+const getData = async (req, res) => {
+  if (req.method !== 'GET')
+    return res.json({ message: 'Request method harus GET', status: 400 }).end();
   try {
-    const queryData = 'SELECT * FROM users';
-    const data = await query({ query: queryData, values: [] });
-    let result = fetch('http://localhost:3000/api/user')
-      .then((res) => res.json())
-      .then(data);
-    console.log(result);
-    res.status(200).json(data);
-  } catch (e) {}
+    const getData = await db('users');
+    res.status(200).json({
+      data: getData,
+      message: 'Get data success',
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-const getUserById = async (req, res) => {
-  let id = req.query.id;
-  try {
-    const queryData = 'SELECT * FROM users WHERE id=?';
-    const values = [id];
-    const data = await query({ query: queryData, values: values });
-    res.status(200).json(data);
-  } catch (e) {}
-};
-
-const createUser = async (req, res) => {
-  let { username, password, status_id, is_active } = req.body;
+const insertData = async (req, res) => {
+  if (req.method !== 'POST')
+    return res
+      .json({ message: 'Request method harus POST', status: 400 })
+      .end();
+  const { username, password, status_id, is_active } = req.body;
 
   if (username === undefined || username.length === 0)
     return res.status(400).json({
@@ -49,80 +45,109 @@ const createUser = async (req, res) => {
       },
       status: 400,
     });
+
   if (!Number(status_id))
     return res.status(400).json({
       status_id: {
         message: 'Status harus berupa angka',
       },
-      status: 400,
     });
 
   if (is_active === undefined || is_active.length === 0)
     return res.status(400).json({
       is_active: {
-        message: 'is_active tidak boleh kosong',
+        message: 'Status tidak boleh kosong',
       },
       status: 400,
     });
+
   if (!Number(is_active))
     return res.status(400).json({
       is_active: {
-        message: 'is_active harus berupa angka',
+        message: 'Status harus berupa angka',
       },
-      status: 400,
     });
 
-  const date = new Date();
-  const createdAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-  const updatedAt = createdAt;
-  const encryptPassword = await bcrypt.hash(password, 10);
+  const created_at = new Date();
+  const updated_at = created_at;
 
-  const values = [
-    username,
-    encryptPassword,
-    status_id,
-    is_active,
-    createdAt,
-    updatedAt,
-  ];
   try {
-    const queryData =
-      'INSERT INTO users (username,password,status_id,is_active,created_at,updated_at) VALUES (?,?,?,?,?,?)';
-    const data = await query({ query: queryData, values: values });
+    const data = await db('users').insert({
+      username,
+      password: bcrypt.hashSync(password, 10),
+      status_id,
+      is_active,
+      created_at,
+      updated_at,
+    });
 
-    if (data.errno === 1062)
+    const createData = await db('users').where('id', data).first();
+    res.status(200);
+    res.json({
+      data: createData,
+      message: 'User created successfully',
+    });
+  } catch (error) {
+    console.log(error);
+    if (error.code === 'ER_DUP_ENTRY')
       return res.status(400).json({
-        username:{
-          message: 'Username sudah ada'
+        username: {
+          message: 'Username sudah ada',
         },
+        data: error,
         status: 400,
       });
 
-    return res.json({
-      data: {
-        username,
-        password: encryptPassword,
-        status_id,
-        is_active,
-        created_at: createdAt,
-        updated_at: updatedAt,
-      },
-      message: 'Data berhasil ditambahkan',
-      status: 200,
+    return res.status(400).json({
+      error: error,
+      status: 400,
     });
-  } catch (e) {
-    res.status(400).json(e);
   }
 };
 
-const updateUser = async (req, res) => {
-  let id = req.query.id;
-  let { username, password, status_id, is_active } = req.body;
+const getDataById = async (req, res) => {
+  if (req.method !== 'GET')
+    return res.json({ message: 'Request method harus GET', status: 400 }).end();
+  const { id } = req.query;
+  try {
+    const getData = await db('users').where('id', id).first();
+    if (!getData) {
+      res.status(400).json({
+        id: id,
+        message: 'Data yang anda cari tidak ditemukan',
+      });
+    }
+    res.status(200).json({
+      data: getData,
+      message: 'Data berhasil ditampilkan',
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-  const userId = await query({
-    query: 'SELECT id FROM users WHERE id=?',
-    values: [id],
-  });
+const deleteData = async (req, res) => {
+  if (req.method !== 'DELETE')
+    return res
+      .json({ message: 'Request method harus DELETE', status: 400 })
+      .end();
+  const { id } = req.query;
+  try {
+    const deleteData = await db('users').where('id', id).del();
+    res.status(200).json({
+      data: deleteData,
+      message: 'Delete data success',
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateData = async (req, res) => {
+  if (req.method !== 'PUT')
+    return res.json({ message: 'Request method harus PUT', status: 400 }).end();
+  const { id } = req.query;
+  const { username, password, status_id, is_active } = req.body;
 
   if (username === undefined || username.length === 0)
     return res.status(400).json({
@@ -131,6 +156,7 @@ const updateUser = async (req, res) => {
       },
       status: 400,
     });
+
   if (password === undefined || password.length === 0)
     return res.status(400).json({
       password: {
@@ -146,76 +172,49 @@ const updateUser = async (req, res) => {
       },
       status: 400,
     });
+
   if (!Number(status_id))
     return res.status(400).json({
       status_id: {
         message: 'Status harus berupa angka',
       },
-      status: 400,
     });
 
   if (is_active === undefined || is_active.length === 0)
     return res.status(400).json({
       is_active: {
-        message: 'is_active tidak boleh kosong',
+        message: 'Status tidak boleh kosong',
       },
       status: 400,
     });
+
   if (!Number(is_active))
     return res.status(400).json({
       is_active: {
-        message: 'is_active harus berupa angka',
+        message: 'Status harus berupa angka',
       },
-      status: 400,
     });
 
-  const date = new Date();
-  const updatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-  const encryptPassword = await bcrypt.hash(password, 10);
-  const values = [username, encryptPassword, status_id, is_active, updatedAt];
+  const updated_at = new Date();
 
   try {
-    const queryData = `UPDATE users SET username=?,password=?,status_id=?,is_active=?,updated_at=? WHERE id=${id}`;
-    const data = await query({ query: queryData, values: values });
-
-    res.json({
-      id: userId[0].id,
-      data: {
+    await db('users')
+      .where('id', id)
+      .update({
         username,
-        password: encryptPassword,
+        password: bcrypt.hashSync(password, 10),
         status_id,
         is_active,
-        updated_at: updatedAt,
-      },
+        updated_at,
+      });
+
+    const updateData = await db('users').where('id', id).first();
+    res.status(200).json({
+      data: updateData,
       message: 'Data berhasil diupdate',
-      status: 200,
     });
   } catch (error) {
-    res.status(400).json({
-      message: 'Gagal memperbarui user, id yang anda masukan tidak ditemukan',
-    });
+    console.log(error);
   }
 };
-
-const deleteUser = async (req, res) => {
-  let id = req.query.id;
-  const userId = await query({
-    query: 'SELECT id FROM users WHERE id=?',
-    values: [id],
-  });
-  try {
-    const queryData = `DELETE FROM users WHERE id=${id}`;
-    const data = await query({ query: queryData });
-    res.json({
-      id: userId[0].id,
-      message: 'Data berhasil dihapus',
-      status: 200,
-    });
-  } catch (error) {
-    res.status(400).json({
-      message: 'Gagal menghapus user, id yang anda masukan tidak ditemukan',
-    });
-  }
-};
-
-export { getAllUser, getUserById, createUser, updateUser, deleteUser };
+export { getData, insertData, getDataById, deleteData, updateData };

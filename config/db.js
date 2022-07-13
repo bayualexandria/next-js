@@ -1,19 +1,12 @@
-const mysql = require('mysql2/promise');
+const knex = require('knex')({
+  client: 'mysql',
+  connection: {
+    host: '127.0.0.1',
+    port: 3306,
+    user: 'root',
+    password: '4lex@ndr!413',
+    database: 'sis',
+  },
+});
 
-
-export async function query ({query, values}) {
-    const connection = await mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: '4lex@ndr!413',
-        database: 'sis',
-        socketPath:'/var/run/mysqld/mysqld.sock'
-    });
-  try {
-    let [result] = await connection.execute(query, values);
-    connection.end();
-    return result;
-  } catch (error) {
-    return error;
-  }
-}
+export default knex;

@@ -1,8 +1,9 @@
 import nextConnect from 'next-connect';
-import { getAllUser, createUser } from '../../../controller/usercontroller';
+import { getData, insertData } from '../../../controller/usercontroller';
 
 const router = nextConnect();
-router.get(getAllUser);
-router.post(createUser);
+
+router.get(getData);
+router.post(insertData);
 
 export default router;
