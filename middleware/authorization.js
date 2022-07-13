@@ -24,11 +24,18 @@ export default function authorization(req, res) {
         .end();
 
     return jwt.verify(authToken, 'secret', function (err, decode) {
-      if (err)
+      if (err.message === 'invalid token')
         return res
           .status(401)
           .json({
-            message: err,
+            message: 'Token tidak valid',
+          })
+          .end();
+      if (err.message === 'jwt expired')
+        return res
+          .status(401)
+          .json({
+            message: 'Token kadaluarsa',
           })
           .end();
 
