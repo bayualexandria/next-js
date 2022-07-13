@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST')
-    return res.status(405).end('Request method harus POST').end();
+    return res.status(405).json({ message: 'Request method harus POST' }).end();
 
   const { username, password } = req.body;
 
@@ -21,15 +21,19 @@ export default async function handler(req, res) {
       message: 'Password salah',
     });
 
-    const token= jwt.sign({
-        id: checkUser.id,
-        username: checkUser.username,
-    },'secret',{
-        expiresIn: '60s'
-    })
+  const token = jwt.sign(
+    {
+      id: checkUser.id,
+      username: checkUser.username,
+    },
+    'secret',
+    {
+      expiresIn: '60s',
+    }
+  );
 
   return res.status(200).json({
     message: 'Login berhasil',
-    token
+    token,
   });
 }
