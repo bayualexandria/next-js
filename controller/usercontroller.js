@@ -1,18 +1,17 @@
 import db from '../config/db';
 var bcrypt = require('bcryptjs');
+import authorization from '../middleware/authorization';
 
 const getData = async (req, res) => {
   if (req.method !== 'GET')
     return res.json({ message: 'Request method harus GET', status: 400 }).end();
-  try {
-    const getData = await db('users');
-    res.status(200).json({
-      data: getData,
-      message: 'Get data success',
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  authorization(req, res);
+
+  const getData = await db('users');
+  res.status(200).json({
+    data: getData,
+    message: 'Get data success',
+  });
 };
 
 const insertData = async (req, res) => {
@@ -20,6 +19,7 @@ const insertData = async (req, res) => {
     return res
       .json({ message: 'Request method harus POST', status: 400 })
       .end();
+  authorization(req, res);
   const { username, password, status_id, is_active } = req.body;
 
   if (username === undefined || username.length === 0)
@@ -108,7 +108,10 @@ const insertData = async (req, res) => {
 const getDataById = async (req, res) => {
   if (req.method !== 'GET')
     return res.json({ message: 'Request method harus GET', status: 400 }).end();
+  authorization(req, res);
   const { id } = req.query;
+
+  authorization(req, res);
   try {
     const getData = await db('users').where('id', id).first();
     if (!getData) {
@@ -131,6 +134,7 @@ const deleteData = async (req, res) => {
     return res
       .json({ message: 'Request method harus DELETE', status: 400 })
       .end();
+  authorization(req, res);
   const { id } = req.query;
   try {
     const deleteData = await db('users').where('id', id).del();
@@ -146,6 +150,7 @@ const deleteData = async (req, res) => {
 const updateData = async (req, res) => {
   if (req.method !== 'PUT')
     return res.json({ message: 'Request method harus PUT', status: 400 }).end();
+  authorization(req, res);
   const { id } = req.query;
   const { username, password, status_id, is_active } = req.body;
 
