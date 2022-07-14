@@ -9,6 +9,7 @@ export default async function handler(req, res) {
       username: {
         message: 'Username tidak boleh kosong',
       },
+      status:400
     });
 
   if (password === undefined || password.length === 0)
@@ -16,6 +17,7 @@ export default async function handler(req, res) {
       password: {
         message: 'Password tidak boleh kosong',
       },
+      status:400
     });
 
   if (cpassword === undefined || cpassword.length === 0)
@@ -23,6 +25,7 @@ export default async function handler(req, res) {
       password: {
         message: 'Konfirmasi Password tidak boleh kosong',
       },
+      status:400
     });
 
   if (password !== cpassword)
@@ -30,6 +33,7 @@ export default async function handler(req, res) {
       password: {
         message: 'Password dan Konfirmasi password tidak sama',
       },
+      status:400
     });
 
   if (status_id === undefined || status_id.length === 0)
@@ -37,6 +41,7 @@ export default async function handler(req, res) {
       status_id: {
         message: 'Status tidak boleh kosong',
       },
+      status:400
     });
 
   if (!Number(status_id))
@@ -44,6 +49,7 @@ export default async function handler(req, res) {
       status_id: {
         message: 'Status harus berupa angka',
       },
+      status:400
     });
 
   if (is_active === undefined || is_active.length === 0)
@@ -51,6 +57,7 @@ export default async function handler(req, res) {
       is_active: {
         message: 'is_active tidak boleh kosong',
       },
+      status:400
     });
 
   if (!Number(is_active))
@@ -58,6 +65,7 @@ export default async function handler(req, res) {
       is_active: {
         message: 'is_active harus berupa angka',
       },
+      status:400
     });
 
   const created_at = new Date();

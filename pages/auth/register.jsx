@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/solid';
 
 export default function Register() {
@@ -7,14 +7,39 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
+  // const [errorUsername, setErrorUsername] = useState('');
+  // const [errorPassword, setErrorPassword] = useState('');
+  // const [errorCPassword, setErrorCPassword] = useState('');
+  const [error,setError]=useState('');
+  const [isActive, setIsActive] = useState(false);
 
   const data = {
     username,
     password,
+    cpassword: confirmPassword,
+    is_active: isActive ? 1 : 0,
+    status_id: 1,
   };
 
-  const save = () => {
-    console.log(data);
+  const save = async () => {
+    try {
+      // if (username === undefined || username.length === 0)
+      //   setErrorUsername('Username harus diisi');
+      // if (password === undefined || password.length === 0)
+      //   setErrorPassword('Password harus diisi');
+      // if (confirmPassword === undefined || confirmPassword.length === 0)
+      //   setErrorCPassword('Konfirmasi Password harus diisi');
+      let register = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      }).then((res) => res.json());
+      console.log(register);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const showPassword = () => {
@@ -24,6 +49,7 @@ export default function Register() {
   const showCPassword = () => {
     setCPVisible(!cPVisible);
   };
+
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="w-full max-w-md p-5 bg-gray-100 rounded-lg shadow-lg">
@@ -45,6 +71,9 @@ export default function Register() {
               id="usename"
               onChange={(e) => setUsername(e.target.value)}
             />
+            <p className="text-sm font-thin text-red-500">
+              
+            </p>
           </div>
           <div className="flex flex-col gap-y-3">
             <label
@@ -72,6 +101,9 @@ export default function Register() {
                 )}
               </button>
             </div>
+            <p className="text-sm font-thin text-red-500">
+             
+            </p>
           </div>
           <div className="flex flex-col gap-y-3">
             <label
@@ -99,6 +131,18 @@ export default function Register() {
                 )}
               </button>
             </div>
+            <p className="text-sm font-thin text-red-500">
+              
+            </p>
+          </div>
+          <div className="flex flex-row">
+            <input
+              type="checkbox"
+              name="is_active"
+              id="is_active"
+              className="w-3 h-3 accent-cyan-300"
+              onChange={(e) => setIsActive(e.target.checked)}
+            />
           </div>
           <button
             className="px-4 py-2 text-base font-bold text-white transition duration-200 rounded-full shadow-md bg-cyan-500 hover:ring hover:ring-cyan-500 hover:text-cyan-500 hover:bg-white"
