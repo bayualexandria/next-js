@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).end('Request method harus POST').end();
-  const { username, password, status_id, is_active } = req.body;
+  const { username, password, cpassword, status_id, is_active } = req.body;
   if (username === undefined || username.length === 0)
     return res.status(400).json({
       username: {
@@ -15,6 +15,20 @@ export default async function handler(req, res) {
     return res.status(400).json({
       password: {
         message: 'Password tidak boleh kosong',
+      },
+    });
+
+  if (cpassword === undefined || cpassword.length === 0)
+    return res.status(400).json({
+      password: {
+        message: 'Konfirmasi Password tidak boleh kosong',
+      },
+    });
+
+  if (password !== cpassword)
+    return res.status(400).json({
+      password: {
+        message: 'Password dan Konfirmasi password tidak sama',
       },
     });
 
@@ -52,7 +66,7 @@ export default async function handler(req, res) {
   try {
     const user = await db('users').insert({
       username,
-      password:password_hash,
+      password: password_hash,
       status_id,
       is_active,
       created_at,
