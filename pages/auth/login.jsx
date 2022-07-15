@@ -2,10 +2,10 @@ import { EyeIcon, EyeOffIcon, RefreshIcon } from '@heroicons/react/solid';
 import Cookies from 'js-cookie';
 import Router from 'next/router';
 import React, { useState, useEffect } from 'react';
-import { unauthorization } from '../../middleware/unauthorization';
+import { unauthorized } from '../../middleware/authPages';
 
 export async function getServerSideProps(ctx) {
-  await unauthorization(ctx);
+  await unauthorized(ctx);
   return { props: {} };
 }
 

@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import { EyeIcon, EyeOffIcon, RefreshIcon } from '@heroicons/react/solid';
+import { unauthorized } from '../../middleware/authPages';
+
+export async function getServerSideProps(ctx) {
+  await unauthorized(ctx);
+  return { props: {} };
+}
 
 export default function Register() {
   const [pVisible, setPVisible] = useState(false);
