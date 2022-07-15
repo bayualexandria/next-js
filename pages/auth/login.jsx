@@ -3,6 +3,10 @@ import Cookies from 'js-cookie';
 import Router from 'next/router';
 import React, { useState, useEffect } from 'react';
 import { unauthorized } from '../../middleware/authPages';
+import ButtonLoading from '../components/Button/button-loading';
+import InputPassword from '../components/Input/input-password';
+import InputText from '../components/Input/input-text';
+import MessageError from '../components/Message/message-error';
 
 export async function getServerSideProps(ctx) {
   await unauthorized(ctx);
@@ -11,20 +15,15 @@ export async function getServerSideProps(ctx) {
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const data = {
     username,
     password,
   };
 
-  const iconLoading = (
-    <>
-      <RefreshIcon className="w-7 h-7 animate-spin" />
-    </>
-  );
   const login = async (e) => {
     e.preventDefault();
     let response = await fetch('/api/login', {
@@ -34,18 +33,18 @@ export default function Login() {
         'Content-Type': 'application/json',
       },
     }).then((res) => res.json());
-    Cookies.set('token', response.token);
-    console.log(response.token);
-    setLoading(iconLoading);
+
+    console.log(response);
+    if (response.status === 400 || response.status === 401)
+      return setError(response);
+    setLoading(true);
     setTimeout(() => {
       setLoading(false);
+      Cookies.set('token', response.token);
+      console.log(response.token);
       console.log(data);
       return Router.push('/post');
     }, 5000);
-  };
-
-  const show = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -55,58 +54,19 @@ export default function Login() {
           Halaman Login
         </h5>
         <form method="post" className="flex flex-col gap-y-5" onSubmit={login}>
-          <div className="flex flex-col gap-y-3">
-            <label
-              htmlFor="usename"
-              className="text-base font-bold text-slate-500"
-            >
-              Username
-            </label>
-            <input
-              type="text"
-              name="username"
-              id="username"
-              className="w-full px-5 py-2 border rounded-md shadow-md outline-none border-cyan-500 hover:ring-2 hover:ring-cyan-300 focus:ring-2 focus:ring-cyan-300"
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-y-3">
-            <label
-              htmlFor="password"
-              className="text-base font-bold text-slate-500"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                id="password"
-                className="w-full px-5 py-2 border rounded-md shadow-md outline-none border-cyan-500 hover:ring-2 hover:ring-cyan-300 focus:ring-2 focus:ring-cyan-300"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <div className="absolute right-2 top-2.5">
-                <button
-                  className="px-2 bg-white outline-none"
-                  type="button"
-                  onClick={show}
-                >
-                  {showPassword ? (
-                    <EyeOffIcon className="w-5 h-5 text-cyan-500" />
-                  ) : (
-                    <EyeIcon className="w-5 h-5 text-cyan-500" />
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <button
-            className="flex justify-center px-4 py-2 mt-5 text-base font-bold text-white transition duration-200 rounded-full shadow-md bg-cyan-500 hover:ring hover:ring-cyan-500 hover:bg-white hover:text-cyan-500"
-            type="submit"
-          >
-            {loading ? loading : 'Login'}
-          </button>
+          <InputText
+            title="Username"
+            error={error.username}
+            name="username"
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <InputPassword
+            title="Password"
+            error={error.password}
+            name="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <ButtonLoading title="Login" loading={loading} />
         </form>
       </div>
     </div>
