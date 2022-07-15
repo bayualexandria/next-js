@@ -2,6 +2,12 @@ import { EyeIcon, EyeOffIcon, RefreshIcon } from '@heroicons/react/solid';
 import Cookies from 'js-cookie';
 import Router from 'next/router';
 import React, { useState, useEffect } from 'react';
+import { unauthorization } from '../../middleware/unauthorization';
+
+export async function getServerSideProps(ctx) {
+  await unauthorization(ctx);
+  return { props: {} };
+}
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -34,21 +40,13 @@ export default function Login() {
     setTimeout(() => {
       setLoading(false);
       console.log(data);
-     return Router.push('/home')
+      return Router.push('/post');
     }, 5000);
   };
 
   const show = () => {
     setShowPassword(!showPassword);
   };
-
-  useEffect(() => {
-    const token = Cookies.get('token');
-
-    if (token) {
-      return Router.push('/home');
-    }
-  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen p-5 bg-slate-100 gap-y-8">
