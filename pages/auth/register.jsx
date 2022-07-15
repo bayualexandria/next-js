@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/solid';
 
 export default function Register() {
@@ -7,10 +7,7 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
-  // const [errorUsername, setErrorUsername] = useState('');
-  // const [errorPassword, setErrorPassword] = useState('');
-  // const [errorCPassword, setErrorCPassword] = useState('');
-  const [error,setError]=useState('');
+  const [error, setError] = useState('');
   const [isActive, setIsActive] = useState(false);
 
   const data = {
@@ -23,12 +20,7 @@ export default function Register() {
 
   const save = async () => {
     try {
-      // if (username === undefined || username.length === 0)
-      //   setErrorUsername('Username harus diisi');
-      // if (password === undefined || password.length === 0)
-      //   setErrorPassword('Password harus diisi');
-      // if (confirmPassword === undefined || confirmPassword.length === 0)
-      //   setErrorCPassword('Konfirmasi Password harus diisi');
+      
       let register = await fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -36,6 +28,8 @@ export default function Register() {
         },
         body: JSON.stringify(data),
       }).then((res) => res.json());
+      console.log(register);
+      if (register.status === 400) return setError(register);
       console.log(register);
     } catch (error) {
       console.log(error);
@@ -72,7 +66,7 @@ export default function Register() {
               onChange={(e) => setUsername(e.target.value)}
             />
             <p className="text-sm font-thin text-red-500">
-              
+              {error.username ? error.username.message : ''}
             </p>
           </div>
           <div className="flex flex-col gap-y-3">
@@ -102,7 +96,7 @@ export default function Register() {
               </button>
             </div>
             <p className="text-sm font-thin text-red-500">
-             
+              {error.password ? error.password.message : ''}
             </p>
           </div>
           <div className="flex flex-col gap-y-3">
@@ -132,7 +126,7 @@ export default function Register() {
               </button>
             </div>
             <p className="text-sm font-thin text-red-500">
-              
+              {error.cpassword ? error.cpassword.message : ''}
             </p>
           </div>
           <div className="flex flex-row">
