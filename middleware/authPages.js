@@ -1,11 +1,9 @@
+import cookies from 'next-cookies';
+
 export function unauthorized(ctx) {
   return new Promise((resolve) => {
-    const headers = ctx.req.headers.cookie;
-    console.log(headers);
-
-    const token = headers.split('=');
-    const [key, value] = [token[0], token[1]];
-    if (value)
+    const allCookie = cookies(ctx);
+    if (allCookie.token)
       return ctx.res
         .writeHead(302, {
           Location: '/post',
@@ -18,16 +16,14 @@ export function unauthorized(ctx) {
 
 export function authorized(ctx) {
   return new Promise((resolve) => {
-    const headers = ctx.req.headers.cookie;
-    const token = headers.split('=');
-    const [key, value] = [token[0], token[1]];
-    if (!value)
+    const allCookie = cookies(ctx);
+    if (!allCookie.token)
       return ctx.res
         .writeHead(302, {
           Location: '/auth/login',
         })
         .end();
 
-    return resolve({ token: value });
+    return resolve({ token: allCookie.token });
   });
 }
