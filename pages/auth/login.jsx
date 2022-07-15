@@ -1,5 +1,7 @@
 import { EyeIcon, EyeOffIcon, RefreshIcon } from '@heroicons/react/solid';
-import React, { useState } from 'react';
+import Cookies from 'js-cookie';
+import Router from 'next/router';
+import React, { useState, useEffect } from 'react';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -19,24 +21,35 @@ export default function Login() {
   );
   const login = async (e) => {
     e.preventDefault();
-    let response =await fetch('/api/login', {
+    let response = await fetch('/api/login', {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((res) => res.json());
-    console.log(response);
-    // setLoading(iconLoading);
-    // setTimeout(() => {
-    //   setLoading(false);
-    //   console.log(data);
-    // }, 5000);
+    Cookies.set('token', response.token);
+    console.log(response.token);
+    setLoading(iconLoading);
+    setTimeout(() => {
+      setLoading(false);
+      console.log(data);
+     return Router.push('/home')
+    }, 5000);
   };
 
   const show = () => {
     setShowPassword(!showPassword);
   };
+
+  useEffect(() => {
+    const token = Cookies.get('token');
+
+    if (token) {
+      return Router.push('/home');
+    }
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen p-5 bg-slate-100 gap-y-8">
       <div className="flex flex-col w-full px-16 py-10 bg-white rounded-md shadow-md gap-y-10 md:w-1/3">
