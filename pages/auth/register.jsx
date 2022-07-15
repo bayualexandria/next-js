@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { EyeIcon, EyeOffIcon } from '@heroicons/react/solid';
+import { EyeIcon, EyeOffIcon, RefreshIcon } from '@heroicons/react/solid';
 
 export default function Register() {
   const [pVisible, setPVisible] = useState(false);
@@ -9,6 +9,7 @@ export default function Register() {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [isActive, setIsActive] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const data = {
     username,
@@ -18,9 +19,13 @@ export default function Register() {
     status_id: 1,
   };
 
+  const iconLoading = (
+    <>
+      <RefreshIcon className="w-7 h-7 animate-spin" />
+    </>
+  );
   const save = async () => {
     try {
-      
       let register = await fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -28,9 +33,13 @@ export default function Register() {
         },
         body: JSON.stringify(data),
       }).then((res) => res.json());
-      console.log(register);
+      
       if (register.status === 400) return setError(register);
-      console.log(register);
+      setLoading(iconLoading);
+      setInterval(() => {
+        setLoading(false)
+        return window.location.href='/auth/login';
+      }, 5000);
     } catch (error) {
       console.log(error);
     }
@@ -139,10 +148,10 @@ export default function Register() {
             />
           </div>
           <button
-            className="px-4 py-2 text-base font-bold text-white transition duration-200 rounded-full shadow-md bg-cyan-500 hover:ring hover:ring-cyan-500 hover:text-cyan-500 hover:bg-white"
+            className="flex justify-center px-4 py-2 text-base font-bold text-white transition duration-200 rounded-full shadow-md bg-cyan-500 hover:ring hover:ring-cyan-500 hover:text-cyan-500 hover:bg-white"
             onClick={save}
           >
-            Register
+            {loading ? loading : 'Simpan'}
           </button>
         </div>
       </div>
