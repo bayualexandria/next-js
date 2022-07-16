@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie';
-import React, { useEffect } from 'react';
+import Router from 'next/router';
+import React, { useEffect, useState } from 'react';
 import { authorized } from '../middleware/authPages';
 
 export async function getServerSideProps(ctx) {
@@ -9,32 +10,50 @@ export async function getServerSideProps(ctx) {
       Authorization: 'JWT ' + token,
     },
   }).then((res) => res.json());
-  console.log(response.message);
-  return { props: { users: response } };
+  return { props: { users: response, token } };
 }
 
 export default function Post(props) {
-  console.log(props.users.message);
+  const { token } = props;
+  const [data, setData] = useState([]);
+  const deleteUser = (id) => {
+    const userFilter = data.filter((user) => {
+      return user.id !== id;
+    });
+    const response = fetch('api/user/' + id, {
+      method: 'DELETE',
+      headers: {
+        Authorization: 'JWT ' + token,
+      },
+    }).then((res) => res.json());
+    if (response) {
+      setData(userFilter);
+    }
+  };
   useEffect(() => {
-    if (props.users.message === 'Token kadaluarsa') {
+    if (props.users.message === 'Token kadaluarsa' || data === undefined) {
       Cookies.remove('token');
     }
-  });
-
-  console.log(props.users.message);
+    setData(props.users.data);
+  }, [data, props.users.data, props.users.message]);
   return (
     <div className="flex items-center justify-center h-screen px-10">
       <div className="w-full p-5 rounded-md shadow-md">
-        <table className="table-fixed">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Username</th>
-              <th>Status</th>
-              <th>#</th>
-            </tr>
-          </thead>
-        </table>
+        {data !== undefined
+          ? data.map((d) => {
+              return (
+                <div key={d.id} className="flex">
+                  <p>{d.username}</p>
+                  <button
+                    className="px-2 py-1 text-white bg-red-500 rounded-full"
+                    onClick={() => deleteUser(d.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              );
+            })
+          : Cookies.remove('token')}
       </div>
     </div>
   );
